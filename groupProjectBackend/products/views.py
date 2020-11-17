@@ -49,16 +49,12 @@ class ProductDetail(APIView):
 
 class ProductCategory(APIView):
 
-    def get_objects(self, request, category):
-        try:
-            products=Product.objects.all(category=category) #gets the project with the relevant pk from the database
-            # self.check_object_permissions(self.request, project)
-            return products
-
-        except Product.DoesNotExist:
-            raise Http404
-        
+    def get(self, request, category): 
+        # cateogry being passed in the request comes from the url
+        products = Product.objects.all()
+        products = products.filter(category__contains=category)
+        # category__contains refers to the field "category" in the database        
         serializer = ProductSerializer(products, many=True)
+        
         return Response(serializer.data)
-
 

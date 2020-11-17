@@ -10,7 +10,7 @@ class ProductSerializer(serializers.Serializer):
     spec2 = serializers.CharField(max_length=None)
     spec3 = serializers.CharField(max_length=None)
     spec4 = serializers.CharField(max_length=None)
-    spec5 = serializers.CharField(max_length=None)
+    spec5 = serializers.CharField(required=False, allow_blank=True, max_length=None)
     image = serializers.URLField()
     price = serializers.IntegerField()
     supplier1 = serializers.URLField()
