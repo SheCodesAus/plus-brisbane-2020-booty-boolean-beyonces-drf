@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .models import Product
 
 
 class ProductSerializer(serializers.Serializer):
@@ -14,3 +15,7 @@ class ProductSerializer(serializers.Serializer):
     price = serializers.IntegerField()
     supplier1 = serializers.URLField()
     supplier2 = serializers.URLField()
+
+
+    def create(self, validated_data):
+        return Product.objects.create(**validated_data)
