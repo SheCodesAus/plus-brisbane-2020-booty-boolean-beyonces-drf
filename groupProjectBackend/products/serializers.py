@@ -4,8 +4,6 @@ from .models import Product
 
 class ProductSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
-
-
     category = serializers.CharField(max_length=50)
     brand = serializers.CharField(max_length=50)
     os = serializers.CharField(required=False, allow_blank=True, max_length=None)
@@ -26,3 +24,6 @@ class ProductSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return Product.objects.create(**validated_data)
+
+
+
