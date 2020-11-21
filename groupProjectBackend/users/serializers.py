@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import CustomUser
 from products.serializers import ProductSerializer
 from products.models import Product
+from django.http import Http404
+from rest_framework import status
 
 class CustomUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
@@ -31,36 +33,36 @@ class CustomUserDetailSerializer(CustomUserSerializer):
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.image = validated_data.get('image', instance.image)
         instance.location = validated_data.get('location', instance.location)
-        # fav_list = validated_data.get('fav', []) 
 
-        add_fav = validated_data.get('add_fav', None)
-        rem_fav = validated_data.get('rem_fav', None)
 
-        if add_fav is not None:
+class CustomUserFavSerializer(CustomUserSerializer):
+
+    def update(self, instance, validated_data): #instance will be the user in question
+        add_fav = validated_data.get('add_fav', 0)
+        rem_fav = validated_data.get('rem_fav', 0)
+
+        # validated data will check if there is an add_fav and use it, otherwise it will use 0
+        if add_fav is not 0:
             # check that the product exists
             try: 
                 product=Product.objects.get(pk=add_fav) #gets the project with the relevant pk from the database
                 # if it exists then add it to fav
                 instance.fav.add(product)
 
-            
+            except Product.DoesNotExist:
+                pass
+               
+
+        if rem_fav is not 0:
+            # For later: How to check if that product is actually already in the list? Django would only remove if the item is in the list already, so no need to perform additional check
+            try:
+                product=Product.objects.get(pk=rem_fav)
+                instance.fav.remove(product)
+
             except Product.DoesNotExist:
                 pass 
-            # For later: We may want to add some indication to the user that product does not exist
-
-        if rem_fav is not None:
-            # For later: How to check if that product is actually already in the list? Django would only remove if the item is in the list already, so no need to perform additional check
-            # need to add try and except to check if product exists
-            product=Product.objects.get(pk=rem_fav)
-            instance.fav.remove(product)
-
-        # validated data will check if there is fav, then it will use that, if there is not then it will use the []
-
-        # for loop - iterates through fav_list and then calls PRoduct(relevant id) and saves it to fav -> this happens 
-        # when calling add rather than save (instance.fav.add(Product(pk)))
-        #fav will be displayed when the instance is returned
 
         # add and remove save automatically, do not need instance.save in those occassions. 
         # However you do need to return the instace
-        instance.save()
+
         return instance

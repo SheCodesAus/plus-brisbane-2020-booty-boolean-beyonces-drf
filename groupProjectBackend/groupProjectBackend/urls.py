@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.authtoken.views import obtain_auth_token
-# from .views import CustomObtainAuthToken
+from .views import CustomObtainAuthToken
 
 
 urlpatterns = [
@@ -25,5 +25,5 @@ urlpatterns = [
     path('', include('users.urls')),
     path('api-auth/', include('rest_framework.urls')),
     # path('api-token-auth/', CustomObtainAuthToken.as_view(), name='api_token_auth'),
-    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
+    path('api-token-auth/', CustomObtainAuthToken.as_view(), name='api_token_auth'),
 ]
