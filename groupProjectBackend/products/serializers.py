@@ -21,6 +21,7 @@ class ProductSerializer(serializers.Serializer):
     supplier2 = serializers.URLField(required=False, allow_blank=True)
     overview = serializers.CharField(required=False, allow_blank=True, max_length=None)
 
+    is_fav = serializers.ReadOnlyField(required=False)
 
     def create(self, validated_data):
         return Product.objects.create(**validated_data)

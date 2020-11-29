@@ -5,13 +5,19 @@ from .models import Product
 from .serializers import ProductSerializer
 from rest_framework import status, permissions
 from django.http import Http404, HttpResponse, HttpResponseNotFound
+from django.db.models import Exists, OuterRef
+
 
 # Create your views here.
 
 class ProductList(APIView):
 
     def get(self, request):
-        products = Product.objects.all()
+        # products = Product.objects.all()
+        # 29/11: annotate sets is_fav to True if the product has been favourited by the user in the request
+        # is_fav: can then be used to put a little star to indicate it has been favourited already
+        user_fav = request.user.fav.filter(id = OuterRef('pk'))
+        products = Product.objects.all().annotate(is_fav = Exists(user_fav))
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 

@@ -34,6 +34,8 @@ class CustomUserDetailSerializer(CustomUserSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.location = validated_data.get('location', instance.location)
 
+        instance.save()
+        return instance
 
 class CustomUserFavSerializer(CustomUserSerializer):
 
