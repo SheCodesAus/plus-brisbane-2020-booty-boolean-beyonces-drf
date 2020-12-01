@@ -59,9 +59,20 @@ class ProductDetail(APIView):
             raise Http404
     
     def get(self, request, pk):
-        product = self.get_object(pk)
-        serializer = ProductSerializer(product)
-        return Response(serializer.data)
+
+        # This checks if user is anonymous then it gives back all that is in the database
+        if  request.user.is_anonymous:
+            product = self.get_object(pk)
+            serializer = ProductSerializer(product)
+            return Response(serializer.data)
+
+         # AA 01.12 - if the user is not anonymous, e.g. logged in, then it annotates is_fav
+        else:
+            is_fav = request.user.fav.filter(pk=pk).exists()
+            product = self.get_object(pk)
+            product.is_fav = is_fav
+            serializer = ProductSerializer(product)
+            return Response(serializer.data)
 
     def delete(self, request, pk):
         product = self.get_object(pk)
@@ -73,11 +84,21 @@ class ProductDetail(APIView):
 class ProductCategory(APIView):
 
     def get(self, request, category): 
-        # cateogry being passed in the request comes from the url
-        products = Product.objects.all()
-        products = products.filter(category__contains=category)
-        # category__contains refers to the field "category" in the database        
-        serializer = ProductSerializer(products, many=True)
-        
-        return Response(serializer.data)
 
+        # This checks if user is anonymous then it gives back all that is in the database
+
+        if request.user.is_anonymous:
+            products = Product.objects.all()
+            products = products.filter(category__contains=category)
+            serializer = ProductSerializer(products, many=True)
+            return Response(serializer.data)
+
+        # AA 01.12 - if the user is not anonymous, e.g. logged in, then it annotates is_fav
+        else: 
+            user_fav = request.user.fav.filter(id = OuterRef('pk'))
+            products = Product.objects.all().filter(category__contains=category).annotate(is_fav = Exists(user_fav))
+            serializer = ProductSerializer(products, many=True)
+            return Response(serializer.data)
+        
+
+        
