@@ -16,24 +16,23 @@ from django.db.models import Exists, OuterRef
 class ProductList(APIView):
 
     def get(self, request):
+
+        if request.user.is_anonymous:
+            products = Product.objects.all()
+            serializer = ProductSerializer(products, many=True)
+            return Response(serializer.data)
+        
+        else:
     
             # The beloew is_fav works when the user is logged in, but if there is not user
             # it fails to load any products - need to keep working on it
              # 29/11: annotate sets is_fav to True if the product has been favourited by the user in the request
             # is_fav: can then be used to put a little star to indicate it has been favourited already
-            # user_fav = request.user.fav.filter(id = OuterRef('pk'))
-            # products = Product.objects.all().annotate(is_fav = Exists(user_fav))
-            # serializer = ProductSerializer(products, many=True)
-            # return Response(serializer.data)
-        
-
-        # except PermissionDenied:
-        # # permission_classes = [permissions.IsAuthenticated] 
-            products = Product.objects.all()
+            user_fav = request.user.fav.filter(id = OuterRef('pk'))
+            products = Product.objects.all().annotate(is_fav = Exists(user_fav))
             serializer = ProductSerializer(products, many=True)
             return Response(serializer.data)
-       
-
+        
         
     def post(self, request): 
         serializer = ProductSerializer(data=request.data)
