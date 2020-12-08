@@ -13,7 +13,7 @@ class CustomUserSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=80)
     last_name = serializers.CharField(required=False, allow_blank=True, max_length=80)
     location = serializers.CharField(required=False, allow_blank=True, max_length=80)
-    image = serializers.URLField(max_length=200, required=False)
+    image = serializers.URLField(max_length=200, required=False, allow_blank=True)
     add_fav = serializers.IntegerField(required=False, write_only=True)
     rem_fav = serializers.IntegerField(required=False, write_only=True)
     # I think by making add_fav and rem_fav write only fields then they wont be displayed, need to test
